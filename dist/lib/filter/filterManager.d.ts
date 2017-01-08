@@ -26,6 +26,7 @@ export declare class FilterManager {
     private setModelOnFilterWrapper(filter, newModel);
     getFilterModel(): any;
     isAdvancedFilterPresent(): boolean;
+    private setAdvancedFilterPresent();
     private updateFilterFlagInColumns();
     isAnyFilterPresent(): boolean;
     private doesFilterPass(node, filterToSkip?);

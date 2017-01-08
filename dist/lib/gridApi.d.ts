@@ -130,6 +130,7 @@ export declare class GridApi {
     resetRowHeights(): void;
     onRowHeightChanged(): void;
     getValue(colKey: string | ColDef | Column, rowNode: RowNode): any;
+    setValue(colKey: string | ColDef | Column, rowNode: RowNode, newValue: any): void;
     addEventListener(eventType: string, listener: Function): void;
     addGlobalListener(listener: Function): void;
     removeEventListener(eventType: string, listener: Function): void;

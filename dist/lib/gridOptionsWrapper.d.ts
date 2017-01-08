@@ -115,12 +115,14 @@ export declare class GridOptionsWrapper {
     getViewportDatasource(): IViewportDatasource;
     isEnableSorting(): boolean;
     isEnableCellExpressions(): boolean;
+    isEnableGroupEdit(): boolean;
     isSuppressMiddleClickScrolls(): boolean;
     isSuppressPreventDefaultOnMouseWheel(): boolean;
     isEnableServerSideSorting(): boolean;
     isSuppressColumnVirtualisation(): boolean;
     isSuppressContextMenu(): boolean;
     isSuppressCopyRowsToClipboard(): boolean;
+    isSuppressClipboardEventHandling(): boolean;
     isEnableFilter(): boolean;
     isEnableServerSideFilter(): boolean;
     isSuppressScrollLag(): boolean;

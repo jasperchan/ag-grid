@@ -88,8 +88,9 @@ var RenderedHeaderCell = (function () {
             }
             else {
                 // no renderer, default text render
-                eText.className = 'ag-header-cell-text';
                 eText.innerHTML = this.displayName;
+                // i don't remember why this is here, take it out???
+                utils_1.Utils.addCssClass(eText, 'ag-header-cell-text');
             }
         }
     };

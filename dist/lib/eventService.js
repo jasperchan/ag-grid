@@ -83,6 +83,8 @@ var EventService = (function () {
             listener(eventType, event);
         });
     };
+    // this is an old idea niall had, should really take it out, was to do with ordering who gets to process
+    // events first, to give model and service objects preference over the view
     EventService.PRIORITY = '-P1';
     __decorate([
         __param(0, context_2.Qualifier('loggerFactory')),

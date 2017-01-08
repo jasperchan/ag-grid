@@ -349,8 +349,14 @@ var RenderedCell = (function (_super) {
         }
     };
     RenderedCell.prototype.onPopupEditorClosed = function () {
+        // we only call stopEditing if we are editing, as
+        // it's possible the popup called 'stop editing'
+        // before this, eg if 'enter key' was pressed on
+        // the editor.
         if (this.editingCell) {
-            this.stopRowOrCellEdit(true);
+            // note: this only happens when use clicks outside of the grid. if use clicks on another
+            // cell, then the editing will have already stopped on this cell
+            this.stopRowOrCellEdit();
             // we only focus cell again if this cell is still focused. it is possible
             // it is not focused if the user cancelled the edit by clicking on another
             // cell outside of this one
@@ -445,6 +451,7 @@ var RenderedCell = (function (_super) {
             keyPress: keyPress,
             charPress: charPress,
             column: this.column,
+            rowIndex: this.gridCell.rowIndex,
             node: this.node,
             api: this.gridOptionsWrapper.getApi(),
             cellStartedEdit: cellStartedEdit,
@@ -538,13 +545,7 @@ var RenderedCell = (function (_super) {
         this.hideEditorPopup = this.popupService.addAsModalPopup(ePopupGui, true, 
         // callback for when popup disappears
         function () {
-            // we only call stopEditing if we are editing, as
-            // it's possible the popup called 'stop editing'
-            // before this, eg if 'enter key' was pressed on
-            // the editor
-            if (_this.editingCell) {
-                _this.onPopupEditorClosed();
-            }
+            _this.onPopupEditorClosed();
         });
         this.popupService.positionPopupOverComponent({
             eventSource: this.eGridCell,
@@ -640,8 +641,8 @@ var RenderedCell = (function (_super) {
         return this.column.isSuppressNavigable(this.node);
     };
     RenderedCell.prototype.isCellEditable = function () {
-        // never allow editing of groups
-        if (this.node.group) {
+        // only allow editing of groups if the user has this option enabled
+        if (this.node.group && !this.gridOptionsWrapper.isEnableGroupEdit()) {
             return false;
         }
         return this.column.isCellEditable(this.node);

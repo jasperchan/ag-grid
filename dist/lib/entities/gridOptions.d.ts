@@ -38,6 +38,7 @@ export interface GridOptions {
     enableFilter?: boolean;
     enableServerSideFilter?: boolean;
     enableStatusBar?: boolean;
+    enableGroupEdit?: boolean;
     suppressMiddleClickScrolls?: boolean;
     suppressPreventDefaultOnMouseWheel?: boolean;
     colWidth?: number;
@@ -65,6 +66,7 @@ export interface GridOptions {
     suppressCopyRowsToClipboard?: boolean;
     suppressAggFuncInHeader?: boolean;
     suppressFocusAfterRefresh?: boolean;
+    suppressClipboardEventHandling?: boolean;
     rowModelType?: string;
     pivotMode?: boolean;
     enableRangeSelection?: boolean;
@@ -241,7 +243,7 @@ export interface GridOptions {
     onDragStarted?(event?: any): void;
     onDragStopped?(event?: any): void;
     onItemsAdded?(event?: any): void;
-    onItemsRemove?(event?: any): void;
+    onItemsRemoved?(event?: any): void;
     /****************************************************************
      * Don't forget to update ComponentUtil if changing this class. *
      ****************************************************************/

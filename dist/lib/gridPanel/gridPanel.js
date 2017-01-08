@@ -415,7 +415,7 @@ var GridPanel = (function (_super) {
         return false;
     };
     GridPanel.prototype.onCtrlAndC = function (event) {
-        if (!this.clipboardService) {
+        if (!this.clipboardService || this.gridOptionsWrapper.isSuppressClipboardEventHandling()) {
             return;
         }
         var focusedCell = this.focusedCellController.getFocusedCell();
@@ -430,14 +430,14 @@ var GridPanel = (function (_super) {
         return false;
     };
     GridPanel.prototype.onCtrlAndV = function (event) {
-        if (!this.rangeController) {
+        if (!this.rangeController || this.gridOptionsWrapper.isSuppressClipboardEventHandling()) {
             return;
         }
         this.clipboardService.pasteFromClipboard();
         return false;
     };
     GridPanel.prototype.onCtrlAndD = function (event) {
-        if (!this.clipboardService) {
+        if (!this.clipboardService || this.gridOptionsWrapper.isSuppressClipboardEventHandling()) {
             return;
         }
         this.clipboardService.copyRangeDown();
@@ -1124,7 +1124,7 @@ var GridPanel = (function (_super) {
     GridPanel.prototype.onBodyHorizontalScroll = function () {
         var newLeftPosition = this.eBodyViewport.scrollLeft;
         if (newLeftPosition !== this.lastLeftPosition) {
-            this.eventService.dispatchEvent(events_1.Events.EVENT_BODY_SCROLL);
+            this.eventService.dispatchEvent(events_1.Events.EVENT_BODY_SCROLL, { direction: 'horizontal' });
             this.lastLeftPosition = newLeftPosition;
             this.horizontallyScrollHeaderCenterAndFloatingCenter();
             this.masterSlaveService.fireHorizontalScrollEvent(newLeftPosition);
@@ -1140,7 +1140,7 @@ var GridPanel = (function (_super) {
     GridPanel.prototype.onVerticalScroll = function (sourceElement) {
         var newTopPosition = sourceElement.scrollTop;
         if (newTopPosition !== this.lastTopPosition) {
-            this.eventService.dispatchEvent(events_1.Events.EVENT_BODY_SCROLL);
+            this.eventService.dispatchEvent(events_1.Events.EVENT_BODY_SCROLL, { direction: 'vertical' });
             this.lastTopPosition = newTopPosition;
             this.fakeVerticalScroll(newTopPosition);
             this.rowRenderer.drawVirtualRowsWithLock();

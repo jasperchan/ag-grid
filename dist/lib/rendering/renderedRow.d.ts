@@ -5,7 +5,8 @@ import { RenderedCell } from "./renderedCell";
 import { RowNode } from "../entities/rowNode";
 import { RowRenderer } from "./rowRenderer";
 import { Column } from "../entities/column";
-export declare class RenderedRow {
+import { BeanStub } from "../context/beanStub";
+export declare class RenderedRow extends BeanStub {
     static EVENT_RENDERED_ROW_REMOVED: string;
     private gridOptionsWrapper;
     private columnController;
@@ -36,7 +37,6 @@ export declare class RenderedRow {
     private ePinnedLeftContainerDF;
     private ePinnedRightContainer;
     private ePinnedRightContainerDF;
-    private destroyFunctions;
     private nextVmTurnFunctions;
     private delayedDestroyFunctions;
     private startRemoveAnimationFunctions;
@@ -73,6 +73,8 @@ export declare class RenderedRow {
     onMouseEvent(eventName: string, mouseEvent: MouseEvent): void;
     private addHoverFunctionality();
     private addHoverClass(hover);
+    private rowFocusedLastTime;
+    private setRowFocusClasses();
     private addCellFocusedListener();
     forEachRenderedCell(callback: (renderedCell: RenderedCell) => void): void;
     private addNodeDataChangedListener();
@@ -109,5 +111,6 @@ export declare class RenderedRow {
     refreshCells(colIds: string[], animate: boolean): void;
     private addClassesFromRowClassFunc();
     private addGridClasses();
+    private addExpandedAndContractedClasses();
     private addClassesFromRowClass();
 }

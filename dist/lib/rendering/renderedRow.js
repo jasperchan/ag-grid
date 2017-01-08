@@ -5,6 +5,11 @@
  * @license MIT
  */
 "use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -28,11 +33,13 @@ var constants_1 = require("../constants");
 var cellRendererService_1 = require("./cellRendererService");
 var cellRendererFactory_1 = require("./cellRendererFactory");
 var gridPanel_1 = require("../gridPanel/gridPanel");
-var RenderedRow = (function () {
+var beanStub_1 = require("../context/beanStub");
+var RenderedRow = (function (_super) {
+    __extends(RenderedRow, _super);
     function RenderedRow(parentScope, rowRenderer, eBodyContainer, eBodyContainerDF, eFullWidthContainer, ePinnedLeftContainer, ePinnedLeftContainerDF, ePinnedRightContainer, ePinnedRightContainerDF, node, animateIn) {
+        _super.call(this);
         this.eAllRowContainers = [];
         this.renderedCells = {};
-        this.destroyFunctions = [];
         // for animations, there are bits we want done in the next VM turn, to all DOM to update first.
         // instead of each row doing a setTimeout(func,0), we put the functions here and the rowRenderer
         // executes them all in one timeout
@@ -90,7 +97,7 @@ var RenderedRow = (function () {
         gridCellNoType[domDataKey] = {
             renderedRow: this
         };
-        this.destroyFunctions.push(function () { gridCellNoType[domDataKey] = null; });
+        this.addDestroyFunc(function () { gridCellNoType[domDataKey] = null; });
     };
     RenderedRow.prototype.setupFullWidthContainers = function (animateInRowTop) {
         this.fullWidthRow = true;
@@ -105,16 +112,11 @@ var RenderedRow = (function () {
         }
     };
     RenderedRow.prototype.addMouseWheelListenerToFullWidthRow = function () {
-        var _this = this;
         var mouseWheelListener = this.gridPanel.genericMouseWheelListener.bind(this.gridPanel);
         // IE9, Chrome, Safari, Opera
-        this.eFullWidthRow.addEventListener('mousewheel', mouseWheelListener);
+        this.addDestroyableEventListener(this.eFullWidthRow, 'mousewheel', mouseWheelListener);
         // Firefox
-        this.eFullWidthRow.addEventListener('DOMMouseScroll', mouseWheelListener);
-        this.destroyFunctions.push(function () {
-            _this.eFullWidthRow.removeEventListener('mousewheel', mouseWheelListener);
-            _this.eFullWidthRow.removeEventListener('DOMMouseScroll', mouseWheelListener);
-        });
+        this.addDestroyableEventListener(this.eFullWidthRow, 'DOMMouseScroll', mouseWheelListener);
     };
     RenderedRow.prototype.setupFullWidthGroupContainers = function (animateInRowTop) {
         this.fullWidthRow = true;
@@ -150,6 +152,7 @@ var RenderedRow = (function () {
             this.refreshCellsIntoRow();
         }
         this.addGridClasses();
+        this.addExpandedAndContractedClasses();
         this.addStyleFromRowStyle();
         this.addStyleFromRowStyleFunc();
         this.addClassesFromRowClass();
@@ -231,8 +234,7 @@ var RenderedRow = (function () {
             _this.addStyleFromRowStyleFunc();
             _this.addClassesFromRowClass();
         };
-        this.rowNode.addEventListener(rowNode_1.RowNode.EVENT_DATA_CHANGED, dataChangedListener);
-        this.destroyFunctions.push(function () { return _this.rowNode.removeEventListener(rowNode_1.RowNode.EVENT_DATA_CHANGED, dataChangedListener); });
+        this.addDestroyableEventListener(this.rowNode, rowNode_1.RowNode.EVENT_DATA_CHANGED, dataChangedListener);
     };
     RenderedRow.prototype.angular1Compile = function (element) {
         if (this.scope) {
@@ -240,20 +242,13 @@ var RenderedRow = (function () {
         }
     };
     RenderedRow.prototype.addColumnListener = function () {
-        var _this = this;
         var columnListener = this.onDisplayedColumnsChanged.bind(this);
         var virtualListener = this.onVirtualColumnsChanged.bind(this);
         var gridColumnsChangedListener = this.onGridColumnsChanged.bind(this);
-        this.mainEventService.addEventListener(events_1.Events.EVENT_DISPLAYED_COLUMNS_CHANGED, columnListener);
-        this.mainEventService.addEventListener(events_1.Events.EVENT_VIRTUAL_COLUMNS_CHANGED, virtualListener);
-        this.mainEventService.addEventListener(events_1.Events.EVENT_COLUMN_RESIZED, columnListener);
-        this.mainEventService.addEventListener(events_1.Events.EVENT_GRID_COLUMNS_CHANGED, gridColumnsChangedListener);
-        this.destroyFunctions.push(function () {
-            _this.mainEventService.removeEventListener(events_1.Events.EVENT_DISPLAYED_COLUMNS_CHANGED, columnListener);
-            _this.mainEventService.removeEventListener(events_1.Events.EVENT_VIRTUAL_COLUMNS_CHANGED, virtualListener);
-            _this.mainEventService.removeEventListener(events_1.Events.EVENT_COLUMN_RESIZED, columnListener);
-            _this.mainEventService.removeEventListener(events_1.Events.EVENT_GRID_COLUMNS_CHANGED, gridColumnsChangedListener);
-        });
+        this.addDestroyableEventListener(this.mainEventService, events_1.Events.EVENT_DISPLAYED_COLUMNS_CHANGED, columnListener);
+        this.addDestroyableEventListener(this.mainEventService, events_1.Events.EVENT_VIRTUAL_COLUMNS_CHANGED, virtualListener);
+        this.addDestroyableEventListener(this.mainEventService, events_1.Events.EVENT_COLUMN_RESIZED, columnListener);
+        this.addDestroyableEventListener(this.mainEventService, events_1.Events.EVENT_GRID_COLUMNS_CHANGED, gridColumnsChangedListener);
     };
     RenderedRow.prototype.onDisplayedColumnsChanged = function (event) {
         // if row is a group row that spans, then it's not impacted by column changes, with exception of pinning
@@ -360,12 +355,7 @@ var RenderedRow = (function () {
         this.eAllRowContainers.forEach(function (row) { return utils_1.Utils.addOrRemoveCssClass(row, 'ag-row-selected', selected); });
     };
     RenderedRow.prototype.addRowSelectedListener = function () {
-        var _this = this;
-        var rowSelectedListener = this.onRowSelected.bind(this);
-        this.rowNode.addEventListener(rowNode_1.RowNode.EVENT_ROW_SELECTED, rowSelectedListener);
-        this.destroyFunctions.push(function () {
-            _this.rowNode.removeEventListener(rowNode_1.RowNode.EVENT_ROW_SELECTED, rowSelectedListener);
-        });
+        this.addDestroyableEventListener(this.rowNode, rowNode_1.RowNode.EVENT_ROW_SELECTED, this.onRowSelected.bind(this));
     };
     RenderedRow.prototype.onMouseEvent = function (eventName, mouseEvent) {
         switch (eventName) {
@@ -389,44 +379,32 @@ var RenderedRow = (function () {
         var onGuiMouseEnter = this.rowNode.onMouseEnter.bind(this.rowNode);
         var onGuiMouseLeave = this.rowNode.onMouseLeave.bind(this.rowNode);
         this.eAllRowContainers.forEach(function (eRow) {
-            eRow.addEventListener('mouseenter', onGuiMouseEnter);
-            eRow.addEventListener('mouseleave', onGuiMouseLeave);
+            _this.addDestroyableEventListener(eRow, 'mouseenter', onGuiMouseEnter);
+            _this.addDestroyableEventListener(eRow, 'mouseleave', onGuiMouseLeave);
         });
         var onNodeMouseEnter = this.addHoverClass.bind(this, true);
         var onNodeMouseLeave = this.addHoverClass.bind(this, false);
-        this.rowNode.addEventListener(rowNode_1.RowNode.EVENT_MOUSE_ENTER, onNodeMouseEnter);
-        this.rowNode.addEventListener(rowNode_1.RowNode.EVENT_MOUSE_LEAVE, onNodeMouseLeave);
-        this.destroyFunctions.push(function () {
-            _this.eAllRowContainers.forEach(function (eRow) {
-                eRow.removeEventListener('mouseenter', onGuiMouseEnter);
-                eRow.removeEventListener('mouseleave', onGuiMouseLeave);
-            });
-            _this.rowNode.removeEventListener(rowNode_1.RowNode.EVENT_MOUSE_ENTER, onNodeMouseEnter);
-            _this.rowNode.removeEventListener(rowNode_1.RowNode.EVENT_MOUSE_LEAVE, onNodeMouseLeave);
-        });
+        this.addDestroyableEventListener(this.rowNode, rowNode_1.RowNode.EVENT_MOUSE_ENTER, onNodeMouseEnter);
+        this.addDestroyableEventListener(this.rowNode, rowNode_1.RowNode.EVENT_MOUSE_LEAVE, onNodeMouseLeave);
     };
     RenderedRow.prototype.addHoverClass = function (hover) {
         this.eAllRowContainers.forEach(function (eRow) { return utils_1.Utils.addOrRemoveCssClass(eRow, 'ag-row-hover', hover); });
     };
+    RenderedRow.prototype.setRowFocusClasses = function () {
+        var rowFocused = this.focusedCellController.isRowFocused(this.rowNode.rowIndex, this.rowNode.floating);
+        if (rowFocused !== this.rowFocusedLastTime) {
+            this.eAllRowContainers.forEach(function (row) { return utils_1.Utils.addOrRemoveCssClass(row, 'ag-row-focus', rowFocused); });
+            this.eAllRowContainers.forEach(function (row) { return utils_1.Utils.addOrRemoveCssClass(row, 'ag-row-no-focus', !rowFocused); });
+            this.rowFocusedLastTime = rowFocused;
+        }
+        if (!rowFocused && this.editingRow) {
+            this.stopEditing(false);
+        }
+    };
     RenderedRow.prototype.addCellFocusedListener = function () {
-        var _this = this;
-        var rowFocusedLastTime = null;
-        var rowFocusedListener = function () {
-            var rowFocused = _this.focusedCellController.isRowFocused(_this.rowNode.rowIndex, _this.rowNode.floating);
-            if (rowFocused !== rowFocusedLastTime) {
-                _this.eAllRowContainers.forEach(function (row) { return utils_1.Utils.addOrRemoveCssClass(row, 'ag-row-focus', rowFocused); });
-                _this.eAllRowContainers.forEach(function (row) { return utils_1.Utils.addOrRemoveCssClass(row, 'ag-row-no-focus', !rowFocused); });
-                rowFocusedLastTime = rowFocused;
-            }
-            if (!rowFocused && _this.editingRow) {
-                _this.stopEditing(false);
-            }
-        };
-        this.mainEventService.addEventListener(events_1.Events.EVENT_CELL_FOCUSED, rowFocusedListener);
-        this.destroyFunctions.push(function () {
-            _this.mainEventService.removeEventListener(events_1.Events.EVENT_CELL_FOCUSED, rowFocusedListener);
-        });
-        rowFocusedListener();
+        this.addDestroyableEventListener(this.mainEventService, events_1.Events.EVENT_CELL_FOCUSED, this.setRowFocusClasses.bind(this));
+        this.addDestroyableEventListener(this.rowNode, rowNode_1.RowNode.EVENT_ROW_INDEX_CHANGED, this.setRowFocusClasses.bind(this));
+        this.setRowFocusClasses();
     };
     RenderedRow.prototype.forEachRenderedCell = function (callback) {
         utils_1.Utils.iterateObject(this.renderedCells, function (key, renderedCell) {
@@ -446,10 +424,7 @@ var RenderedRow = (function () {
             // as a result. this is what happens when selected rows are loaded in virtual pagination.
             _this.onRowSelected();
         };
-        this.rowNode.addEventListener(rowNode_1.RowNode.EVENT_DATA_CHANGED, nodeDataChangedListener);
-        this.destroyFunctions.push(function () {
-            _this.rowNode.removeEventListener(rowNode_1.RowNode.EVENT_DATA_CHANGED, nodeDataChangedListener);
-        });
+        this.addDestroyableEventListener(this.rowNode, rowNode_1.RowNode.EVENT_DATA_CHANGED, nodeDataChangedListener);
     };
     RenderedRow.prototype.onTopChanged = function () {
         // console.log(`top changed for ${this.rowNode.id} = ${this.rowNode.rowTop}`);
@@ -464,13 +439,11 @@ var RenderedRow = (function () {
         }
     };
     RenderedRow.prototype.setupTop = function (animateInRowTop) {
-        var _this = this;
         if (this.gridOptionsWrapper.isForPrint()) {
             return;
         }
         var topChangedListener = this.onTopChanged.bind(this);
-        this.rowNode.addEventListener(rowNode_1.RowNode.EVENT_TOP_CHANGED, topChangedListener);
-        this.destroyFunctions.push(function () { return _this.rowNode.removeEventListener(rowNode_1.RowNode.EVENT_TOP_CHANGED, topChangedListener); });
+        this.addDestroyableEventListener(this.rowNode, rowNode_1.RowNode.EVENT_TOP_CHANGED, topChangedListener);
         if (!animateInRowTop) {
             this.onTopChanged();
         }
@@ -486,8 +459,7 @@ var RenderedRow = (function () {
                 _this.eAllRowContainers.forEach(function (row) { return row.style.height = heightPx; });
             }
         };
-        this.rowNode.addEventListener(rowNode_1.RowNode.EVENT_HEIGHT_CHANGED, setHeightListener);
-        this.destroyFunctions.push(function () { return _this.rowNode.removeEventListener(rowNode_1.RowNode.EVENT_HEIGHT_CHANGED, setHeightListener); });
+        this.addDestroyableEventListener(this.rowNode, rowNode_1.RowNode.EVENT_HEIGHT_CHANGED, setHeightListener);
         setHeightListener();
     };
     RenderedRow.prototype.addRowIndexes = function () {
@@ -507,8 +479,7 @@ var RenderedRow = (function () {
                 utils_1.Utils.addOrRemoveCssClass(eRow, 'ag-row-odd', !rowIsEven);
             });
         };
-        this.rowNode.addEventListener(rowNode_1.RowNode.EVENT_ROW_INDEX_CHANGED, rowIndexListener);
-        this.destroyFunctions.push(function () { return _this.rowNode.removeEventListener(rowNode_1.RowNode.EVENT_ROW_INDEX_CHANGED, rowIndexListener); });
+        this.addDestroyableEventListener(this.rowNode, rowNode_1.RowNode.EVENT_ROW_INDEX_CHANGED, rowIndexListener);
         rowIndexListener();
     };
     // adds in row and row-id attributes to the row
@@ -543,10 +514,12 @@ var RenderedRow = (function () {
     };
     RenderedRow.prototype.destroy = function (animate) {
         if (animate === void 0) { animate = false; }
+        _super.prototype.destroy.call(this);
+        // why do we have this method? shouldn't everything below be added as a destroy func beside
+        // the corresponding create logic?
         this.destroyScope();
         this.destroyFullWidthComponent();
         this.forEachRenderedCell(function (renderedCell) { return renderedCell.destroy(); });
-        this.destroyFunctions.forEach(function (func) { return func(); });
         if (animate) {
             this.startRemoveAnimationFunctions.forEach(function (func) { return func(); });
         }
@@ -622,7 +595,7 @@ var RenderedRow = (function () {
             var params = this.createFullWidthParams(eRow);
             var cellComponent = this.cellRendererService.useCellRenderer(this.fullWidthCellRenderer, eRow, params);
             if (cellComponent && cellComponent.destroy) {
-                this.destroyFunctions.push(function () { return cellComponent.destroy(); });
+                this.addDestroyFunc(function () { return cellComponent.destroy(); });
             }
         }
         if (this.rowNode.footer) {
@@ -851,13 +824,6 @@ var RenderedRow = (function () {
             classes.push('ag-row-group');
             // if a group, put the level of the group in
             classes.push('ag-row-level-' + this.rowNode.level);
-            if (!this.rowNode.footer && this.rowNode.expanded) {
-                classes.push('ag-row-group-expanded');
-            }
-            if (!this.rowNode.footer && !this.rowNode.expanded) {
-                // opposite of expanded is contracted according to the internet.
-                classes.push('ag-row-group-contracted');
-            }
             if (this.rowNode.footer) {
                 classes.push('ag-row-footer');
             }
@@ -877,6 +843,19 @@ var RenderedRow = (function () {
         classes.forEach(function (classStr) {
             _this.eAllRowContainers.forEach(function (row) { return utils_1.Utils.addCssClass(row, classStr); });
         });
+    };
+    RenderedRow.prototype.addExpandedAndContractedClasses = function () {
+        var _this = this;
+        var isGroupNode = this.rowNode.group && !this.rowNode.footer;
+        if (!isGroupNode) {
+            return;
+        }
+        var listener = function () {
+            var expanded = _this.rowNode.expanded;
+            _this.eAllRowContainers.forEach(function (row) { return utils_1.Utils.addOrRemoveCssClass(row, 'ag-row-group-expanded', expanded); });
+            _this.eAllRowContainers.forEach(function (row) { return utils_1.Utils.addOrRemoveCssClass(row, 'ag-row-group-contracted', !expanded); });
+        };
+        this.addDestroyableEventListener(this.rowNode, rowNode_1.RowNode.EVENT_EXPANDED_CHANGED, listener);
     };
     RenderedRow.prototype.addClassesFromRowClass = function () {
         var _this = this;
@@ -942,5 +921,5 @@ var RenderedRow = (function () {
         __metadata('design:returntype', void 0)
     ], RenderedRow.prototype, "init", null);
     return RenderedRow;
-}());
+}(beanStub_1.BeanStub));
 exports.RenderedRow = RenderedRow;

@@ -409,6 +409,9 @@ var GridApi = (function () {
             return this.valueService.getValue(column, rowNode);
         }
     };
+    GridApi.prototype.setValue = function (colKey, rowNode, newValue) {
+        this.valueService.setValue(rowNode, colKey, newValue);
+    };
     GridApi.prototype.addEventListener = function (eventType, listener) {
         this.eventService.addEventListener(eventType, listener);
     };

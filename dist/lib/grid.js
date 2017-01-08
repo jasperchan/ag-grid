@@ -53,6 +53,7 @@ var valueFormatterService_1 = require("./rendering/valueFormatterService");
 var agCheckbox_1 = require("./widgets/agCheckbox");
 var baseFrameworkFactory_1 = require("./baseFrameworkFactory");
 var scrollVisibleService_1 = require("./gridPanel/scrollVisibleService");
+var dateFilter_1 = require("./filter/dateFilter");
 var Grid = (function () {
     function Grid(eGridDiv, gridOptions, params) {
         if (!eGridDiv) {
@@ -89,7 +90,10 @@ var Grid = (function () {
                 dragAndDropService_1.DragAndDropService, sortController_1.SortController, columnController_1.ColumnApi, focusedCellController_1.FocusedCellController, mouseEventService_1.MouseEventService,
                 cellNavigationService_1.CellNavigationService, filterStage_1.FilterStage, sortStage_1.SortStage, flattenStage_1.FlattenStage, focusService_1.FocusService,
                 cellEditorFactory_1.CellEditorFactory, cellRendererService_1.CellRendererService, valueFormatterService_1.ValueFormatterService, scrollVisibleService_1.ScrollVisibleService],
-            components: [{ componentName: 'AgCheckbox', theClass: agCheckbox_1.AgCheckbox }],
+            components: [
+                { componentName: 'AgCheckbox', theClass: agCheckbox_1.AgCheckbox },
+                { componentName: 'ButtonPanel', theClass: dateFilter_1.ButtonPanel },
+            ],
             debug: !!gridOptions.debug
         });
         var eventService = this.context.getBean('eventService');

@@ -199,6 +199,7 @@ export class GridOptionsWrapper {
     public isSuppressColumnVirtualisation() { return isTrue(this.gridOptions.suppressColumnVirtualisation); }
     public isSuppressContextMenu() { return isTrue(this.gridOptions.suppressContextMenu); }
     public isSuppressCopyRowsToClipboard() { return isTrue(this.gridOptions.suppressCopyRowsToClipboard); }
+    public isSuppressClipboardEventHandling() { return isTrue(this.gridOptions.suppressClipboardEventHandling); }
     public isEnableFilter() { return isTrue(this.gridOptions.enableFilter) || isTrue(this.gridOptions.enableServerSideFilter); }
     public isEnableServerSideFilter() { return this.gridOptions.enableServerSideFilter; }
     public isSuppressScrollLag() { return isTrue(this.gridOptions.suppressScrollLag); }

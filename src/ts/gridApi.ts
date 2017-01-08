@@ -493,6 +493,10 @@ export class GridApi {
         }
     }
 
+    public setValue(colKey: string|ColDef|Column, rowNode: RowNode, newValue: any): void {
+        this.valueService.setValue(rowNode, colKey, newValue);
+    }
+
     public addEventListener(eventType: string, listener: Function): void {
         this.eventService.addEventListener(eventType, listener);
     }

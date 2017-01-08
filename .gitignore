@@ -3,4 +3,5 @@ bower_components/
 web-root/
 
 .gitignore
+build.sh
 

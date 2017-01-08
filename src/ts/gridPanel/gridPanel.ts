@@ -505,7 +505,7 @@ export class GridPanel extends BeanStub {
     }
 
     private onCtrlAndC(event: KeyboardEvent): boolean {
-        if (!this.clipboardService) { return; }
+        if (!this.clipboardService || this.gridOptionsWrapper.isSuppressClipboardEventHandling()) { return; }
 
         var focusedCell = this.focusedCellController.getFocusedCell();
 
@@ -523,14 +523,14 @@ export class GridPanel extends BeanStub {
     }
 
     private onCtrlAndV(event: KeyboardEvent): boolean {
-        if (!this.rangeController) { return; }
+        if (!this.rangeController || this.gridOptionsWrapper.isSuppressClipboardEventHandling()) { return; }
 
         this.clipboardService.pasteFromClipboard();
         return false;
     }
 
     private onCtrlAndD(event: KeyboardEvent): boolean {
-        if (!this.clipboardService) { return; }
+        if (!this.clipboardService || this.gridOptionsWrapper.isSuppressClipboardEventHandling()) { return; }
         this.clipboardService.copyRangeDown();
         event.preventDefault();
         return false;
